@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Models\User ;
+use  App\Notifications\TwoFactorCode ;
 class LoginRequest extends FormRequest
 {
     /**
@@ -48,9 +49,11 @@ class LoginRequest extends FormRequest
                 'email' => trans('auth.failed'),
             ]);
         }
+        // insert code in data
         $user = User::where('email' ,  $this->input('email'))->first();
         $user->generateCode();
         
+        $user =  notify(new TwoFactorCode());
         RateLimiter::clear($this->throttleKey());
 
        
